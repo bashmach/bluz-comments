@@ -1,0 +1,23 @@
+{
+    "name": "bashmach/bluz-comments",
+    "description": "Comments module Bluz, a lightweight PHP framework",
+    "type": "library",
+    "require": {
+        "php": ">=5.4"
+    },
+    "authors": [
+        {
+            "name": "Pavel Machekhin",
+            "email": "pavel.machekhin@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Bluz\\Comments\\": "src/"
+        }
+    },
+    "support": {
+        "email": "pavel.machekhin@gmail.com"
+    },
+    "license": "MIT"
+}
