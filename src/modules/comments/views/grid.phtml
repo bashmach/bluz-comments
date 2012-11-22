@@ -1,0 +1,82 @@
+<?php
+/**
+ * @var \Bluz\Grid\Grid $grid
+ */
+?>
+<script>
+    // use data-spy="grid" for use AJAX for reload grid
+    require(['bluz.grid']);
+</script>
+
+<div data-spy="grid" data-grid="<?=$grid->getUid()?>">
+    <div class="pagination pagination-right">
+        <ul>
+            <li><a href="#">Limit</a></li>
+            <li <?=(($grid->getLimit()==5)?'class="active"':'')?>><a href="<?=$grid->limit(5)?>">5</a></li>
+            <li <?=(($grid->getLimit()==10)?'class="active"':'')?>><a href="<?=$grid->limit(10)?>">10</a></li>
+        </ul>
+    </div>
+
+    <table class="table grid">
+        <thead>
+        <tr>
+            <th width="40px">Id</th>
+            <th><a href="<?=$grid->order('created')?:'#'?>">Date</a></th>
+            <th><a href="<?=$grid->order('content')?:'#'?>">Content</a></th>
+            <th width="120px"></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach($grid->getData() as $row) : ?>
+        <tr>
+            <td><?=$row['id']?></td>
+            <td><?=$row['created']?></td>
+            <td><?=$row['content']?></td>
+            <td class="controls">
+                <a href="<?=$this->url('comments', 'crud', ['data' => ['id' => $row['id']]]);?>" class="btn dialog" data-ajax-method="get">
+                    <i class="icon-edit"></i>
+                </a>
+                <a href="<?=$this->url('comments', 'crud', ['data' => ['id' => $row['id']]]);?>" class="confirm btn btn-danger ajax" data-ajax-method="delete">
+                    <i class="icon-white icon-remove"></i>
+                </a>
+            </td>
+        </tr>
+            <?php endforeach; ?>
+        <?php if (sizeof($grid->getData()) < $grid->getLimit()) :
+            $emptyRows = $grid->getLimit() - sizeof($grid->getData()); ?>
+            <?php for ($i = 0; $i < $emptyRows; $i++): ?>
+        <tr>
+            <td colspan="5">&nbsp;</td>
+        </tr>
+            <?php endfor; ?>
+            <?php endif; ?>
+        </tbody>
+    </table>
+    <div class="pagination">
+        <?php if ($grid->pages() > 1) : ?>
+        <ul>
+            <?php if ($prev = $grid->prev()) : ?><li><a href="<?=$prev?>">&laquo;</a></li>
+            <?php else : ?> <li class="disabled"><a href="#" onclick="javascript:return false;">&laquo;</a></li>
+            <?php endif; ?>
+
+
+            <?php for ($page = 1; $page <= $grid->pages(); $page++) : ?>
+            <li <?=($page==$grid->getPage()?'class="active"':'') ?>><a href="<?=$grid->page($page)?>"><?=$page?></a></li>
+            <?php endfor; ?>
+
+            <?php if ($next = $grid->next()) : ?><li><a href="<?=$next?>">&raquo;</a></li>
+            <?php else : ?> <li class="disabled"><a href="#" onclick="javascript:return false;">&raquo;</a></li>
+            <?php endif; ?>
+        </ul>
+        <?php endif; ?>
+
+        <ul class="right">
+            <li>
+                <a href="<?=$grid->reset()?>">Total:
+                    <strong><?=$grid->total()?></strong> <?=$this->__('record','records', $grid->total())?> on
+                    <strong><?=$grid->pages()?></strong> <?=$this->__('page','pages', $grid->pages())?></a>
+            </li>
+        </ul>
+    </div>
+
+</div>
