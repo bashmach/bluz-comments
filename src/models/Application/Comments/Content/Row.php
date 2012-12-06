@@ -41,6 +41,11 @@ use Application\Privileges;
  */
 class Row extends \Bluz\Db\Row
 {
+    const FILTER_ALL = 'all';
+    const FILTER_APPROVED = 'approved';
+    const FILTER_PENDING = 'pending';
+    const FILTER_SPAM = 'spam';
+    const FILTER_DELETED = 'deleted';
 
     /**
      * @var integer

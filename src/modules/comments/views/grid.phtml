@@ -3,18 +3,72 @@
  * @var \Bluz\Grid\Grid $grid
  */
 ?>
+<link rel="stylesheet" href="<?=$this->baseUrl('/assets/comments/styles.css')?>" />
+
 <script>
+    require.config({
+        paths: {
+            'comments': '/assets/comments'
+        }
+    });
+
     // use data-spy="grid" for use AJAX for reload grid
-    require(['bluz.grid']);
+    require(['bluz.grid', 'comments/main']);
 </script>
 
-<div data-spy="grid" data-grid="<?=$grid->getUid()?>">
+<div id="comments" data-spy="grid" data-grid="<?=$grid->getUid()?>">
     <div class="pagination pagination-right">
         <ul>
             <li><a href="#">Limit</a></li>
             <li <?=(($grid->getLimit()==5)?'class="active"':'')?>><a href="<?=$grid->limit(5)?>">5</a></li>
             <li <?=(($grid->getLimit()==10)?'class="active"':'')?>><a href="<?=$grid->limit(10)?>">10</a></li>
         </ul>
+    </div>
+
+    <ul class="nav nav-tabs">
+        <li<?php echo $filter == \Application\Comments\Content\Row::FILTER_ALL ? ' class="active"' : ''?>>
+            <a href="<?=$this->url('comments', 'grid', array('filter' => \Application\Comments\Content\Row::FILTER_ALL))?>">All</a>
+        </li>
+        <li<?php echo $filter == '' || $filter == \Application\Comments\Content\Row::FILTER_APPROVED ? ' class="active"' : ''?>>
+            <a href="<?=$this->url('comments', 'grid', array('filter' => \Application\Comments\Content\Row::FILTER_APPROVED))?>">Approved</a>
+        </li>
+        <li<?php echo $filter == \Application\Comments\Content\Row::FILTER_PENDING ? ' class="active"' : ''?>>
+            <a href="<?=$this->url('comments', 'grid', array('filter' => \Application\Comments\Content\Row::FILTER_PENDING))?>">Pending</a>
+        </li>
+        <li<?php echo $filter == \Application\Comments\Content\Row::FILTER_SPAM ? ' class="active"' : ''?>>
+            <a href="<?=$this->url('comments', 'grid', array('filter' => \Application\Comments\Content\Row::FILTER_SPAM))?>">Spam</a>
+        </li>
+        <li<?php echo $filter == \Application\Comments\Content\Row::FILTER_DELETED ? ' class="active"' : ''?>>
+            <a href="<?=$this->url('comments', 'grid', array('filter' => \Application\Comments\Content\Row::FILTER_DELETED))?>">Deleted</a>
+        </li>
+    </ul>
+
+    <div class="navbar">
+        <div class="navbar-inner">
+            <div class="container">
+
+                <label for="select-all" class="checkbox pull-left">
+                    <input type="checkbox" id="select-all" /> Select all
+                </label>
+
+                <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+                <div class="btn-group pull-left">
+                    <button class="btn btn-small" disabled="disabled">Approve</button>
+                    <button class="btn btn-small" disabled="disabled">Spam</button>
+                    <button class="btn btn-small" disabled="disabled">Delete</button>
+                </div>
+
+                <!-- Everything you want hidden at 940px or less, place within here -->
+                <div class="nav-collapse collapse">
+                    <!-- .nav, .navbar-search, .navbar-form, etc -->
+
+                    <form class="navbar-search pull-right">
+                        <input type="text" class="search-query" placeholder="Search">
+                    </form>
+                </div>
+
+            </div>
+        </div>
     </div>
 
     <table class="table grid">
