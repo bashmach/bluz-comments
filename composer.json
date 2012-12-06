@@ -16,6 +16,14 @@
             "Bluz\\Comments\\": "src/"
         }
     },
+    "scripts": {
+        "post-install-cmd": [
+            "sh ./bin/install.sh"
+        ],
+        "post-package-uninstall": [
+            "sh ./bin/uninstall.sh"
+        ]
+    },
     "support": {
         "email": "pavel.machekhin@gmail.com"
     },
