@@ -13,22 +13,20 @@ use Application\Comments;
 
 return
     /**
-     * @param string $filter
-     * @route /comments/grid/{$filter}
      * @privilege Management
      * @return \closure
      */
-    function($filter) use ($view, $module, $controller) {
+    function() use ($request, $view, $module, $controller) {
         $this->getLayout()->setTemplate('dashboard.phtml');
         $this->getLayout()->breadCrumbs([
             $view->ahref('Dashboard', ['dashboard', 'index']),
             'Comments'
         ]);
 
-        $grid = new Comments\Content\Grid;
+        $grid = new Comments\Content\Grid();
         $grid->setModule($module);
         $grid->setController($controller);
 
-        $view->filter = $filter;
+        $view->filter = $request->getParam('comments-filter-status', Comments\Content\Row::FILTER_ALL);
         $view->grid = $grid;
     };

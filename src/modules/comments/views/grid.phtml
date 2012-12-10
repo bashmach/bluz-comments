@@ -27,19 +27,19 @@
 
     <ul class="nav nav-tabs">
         <li<?php echo $filter == \Application\Comments\Content\Row::FILTER_ALL ? ' class="active"' : ''?>>
-            <a href="<?=$this->url('comments', 'grid', array('filter' => \Application\Comments\Content\Row::FILTER_ALL))?>">All</a>
+            <a href="<?=$this->url('comments', 'grid')?>">All</a>
         </li>
         <li<?php echo $filter == '' || $filter == \Application\Comments\Content\Row::FILTER_APPROVED ? ' class="active"' : ''?>>
-            <a href="<?=$this->url('comments', 'grid', array('filter' => \Application\Comments\Content\Row::FILTER_APPROVED))?>">Approved</a>
+            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::FILTER_APPROVED)?>">Approved</a>
         </li>
         <li<?php echo $filter == \Application\Comments\Content\Row::FILTER_PENDING ? ' class="active"' : ''?>>
-            <a href="<?=$this->url('comments', 'grid', array('filter' => \Application\Comments\Content\Row::FILTER_PENDING))?>">Pending</a>
+            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::FILTER_PENDING)?>">Pending</a>
         </li>
         <li<?php echo $filter == \Application\Comments\Content\Row::FILTER_SPAM ? ' class="active"' : ''?>>
-            <a href="<?=$this->url('comments', 'grid', array('filter' => \Application\Comments\Content\Row::FILTER_SPAM))?>">Spam</a>
+            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::FILTER_SPAM)?>">Spam</a>
         </li>
         <li<?php echo $filter == \Application\Comments\Content\Row::FILTER_DELETED ? ' class="active"' : ''?>>
-            <a href="<?=$this->url('comments', 'grid', array('filter' => \Application\Comments\Content\Row::FILTER_DELETED))?>">Deleted</a>
+            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::FILTER_DELETED)?>">Deleted</a>
         </li>
     </ul>
 
@@ -53,9 +53,9 @@
 
                 <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
                 <div class="btn-group pull-left">
-                    <button class="btn btn-small" disabled="disabled">Approve</button>
-                    <button class="btn btn-small" disabled="disabled">Spam</button>
-                    <button class="btn btn-small" disabled="disabled">Delete</button>
+                    <button class="btn btn-small" disabled="disabled"><i class="icon-ok-circle"></i> Approve</button>
+                    <button class="btn btn-small" disabled="disabled"><i class="icon-ban-circle"></i> Spam</button>
+                    <button class="btn btn-small" disabled="disabled"><i class="icon-remove-circle"></i> Delete</button>
                 </div>
 
                 <!-- Everything you want hidden at 940px or less, place within here -->
@@ -74,8 +74,9 @@
     <table class="table grid">
         <thead>
         <tr>
-            <th width="40px">Id</th>
-            <th><a href="<?=$grid->order('created')?:'#'?>">Date</a></th>
+            <th class="select">&nbsp;</th>
+            <th class="author"><a href="<?=$grid->order('login')?:'#'?>">Author</a></th>
+            <th><a href="<?=$grid->order('created')?:'#'?>">Created</a></th>
             <th><a href="<?=$grid->order('content')?:'#'?>">Content</a></th>
             <th width="120px"></th>
         </tr>
@@ -83,16 +84,33 @@
         <tbody>
         <?php foreach($grid->getData() as $row) : ?>
         <tr>
-            <td><?=$row['id']?></td>
-            <td><?=$row['created']?></td>
+            <td class="select">
+                <input type="checkbox" name="select" value="<?=$row['id']?>" />
+            </td>
+            <td class="author">
+                <?=$this->widget('comments', 'gravatar', ['email' => $row['email']])?>
+                <p>
+                    <span><?=$row['login']?></span>
+                </p>
+                <span><?=$row['email']?></span>
+            </td>
+            <td class="date"><?=$row['created']?></td>
             <td><?=$row['content']?></td>
             <td class="controls">
-                <a href="<?=$this->url('comments', 'crud', ['data' => ['id' => $row['id']]]);?>" class="btn dialog" data-ajax-method="get">
-                    <i class="icon-edit"></i>
-                </a>
-                <a href="<?=$this->url('comments', 'crud', ['data' => ['id' => $row['id']]]);?>" class="confirm btn btn-danger ajax" data-ajax-method="delete">
-                    <i class="icon-white icon-remove"></i>
-                </a>
+                <div class="btn-group">
+
+                    <a href="<?=$this->url('comments', 'approve', ['data' => ['id' => $row['id']]]);?>" class="btn btn-small dialog" data-ajax-method="get">
+                        <i class="icon-ok-circle"></i> Approve
+                    </a>
+
+                    <a href="<?=$this->url('comments', 'spam', ['data' => ['id' => $row['id']]]);?>" class="btn btn-small dialog" data-ajax-method="get">
+                        <i class="icon-ban-circle"></i> Spam
+                    </a>
+
+                    <a href="<?=$this->url('comments', 'delete', ['data' => ['id' => $row['id']]]);?>" class="btn btn-small dialog" data-ajax-method="get">
+                        <i class="icon-remove-circle"></i> Delete
+                    </a>
+                </div>
             </td>
         </tr>
             <?php endforeach; ?>

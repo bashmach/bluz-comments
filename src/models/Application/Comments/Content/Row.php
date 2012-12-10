@@ -70,6 +70,11 @@ class Row extends \Bluz\Db\Row
     /**
      * @var string
      */
+    public $author;
+
+    /**
+     * @var string
+     */
     public $parentId;
 
     /**

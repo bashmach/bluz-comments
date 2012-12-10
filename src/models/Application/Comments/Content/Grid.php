@@ -37,22 +37,24 @@ class Grid extends \Bluz\Grid\Grid
 
     /**
      * init
-     * 
+     *
      * @return self
      */
     public function init()
     {
-         // Array
-         $adapter = new \Bluz\Grid\Source\SqlSource();
-         $adapter->setSource('
+        // Array
+        $adapter = new \Bluz\Grid\Source\SqlSource();
+        $adapter->setSource('
              SELECT *
-             FROM com_content
-             ');
 
-         $this->setAdapter($adapter);
-         $this->setDefaultLimit(15);
-         $this->setAllowOrders(['created', 'content']);
-         $this->setAllowFilters([]);
-         return $this;
+             FROM comments
+         ');
+
+        $this->setAdapter($adapter);
+        $this->setDefaultLimit(15);
+        $this->setAllowOrders(['created', 'login', 'content']);
+        $this->setAllowFilters(['status']);
+        $this->setDefaultOrder('created', 'desc');
+        return $this;
     }
 }
