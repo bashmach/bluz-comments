@@ -44,7 +44,7 @@ class Table extends \Bluz\Db\Table
      */
     protected $table = 'com_content';
 
-    protected $rowClass = '\Bluz\Comments\Content\Row';
+    protected $rowClass = '\Application\Comments\Content\Row';
 
     /**
      * Primary key(s)

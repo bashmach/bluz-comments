@@ -13,7 +13,7 @@
     });
 
     // use data-spy="grid" for use AJAX for reload grid
-    require(['bluz.grid', 'comments/main']);
+    require(['bluz.grid', 'comments/grid']);
 </script>
 
 <div id="comments" data-spy="grid" data-grid="<?=$grid->getUid()?>">
@@ -29,17 +29,17 @@
         <li<?php echo $filter == \Application\Comments\Content\Row::FILTER_ALL ? ' class="active"' : ''?>>
             <a href="<?=$this->url('comments', 'grid')?>">All</a>
         </li>
-        <li<?php echo $filter == '' || $filter == \Application\Comments\Content\Row::FILTER_APPROVED ? ' class="active"' : ''?>>
-            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::FILTER_APPROVED)?>">Approved</a>
+        <li<?php echo $filter == '' || $filter == \Application\Comments\Content\Row::STATUS_APPROVED ? ' class="active"' : ''?>>
+            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::STATUS_APPROVED)?>">Approved</a>
         </li>
-        <li<?php echo $filter == \Application\Comments\Content\Row::FILTER_PENDING ? ' class="active"' : ''?>>
-            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::FILTER_PENDING)?>">Pending</a>
+        <li<?php echo $filter == \Application\Comments\Content\Row::STATUS_PENDING ? ' class="active"' : ''?>>
+            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::STATUS_PENDING)?>">Pending</a>
         </li>
-        <li<?php echo $filter == \Application\Comments\Content\Row::FILTER_SPAM ? ' class="active"' : ''?>>
-            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::FILTER_SPAM)?>">Spam</a>
+        <li<?php echo $filter == \Application\Comments\Content\Row::STATUS_SPAM ? ' class="active"' : ''?>>
+            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::STATUS_SPAM)?>">Spam</a>
         </li>
-        <li<?php echo $filter == \Application\Comments\Content\Row::FILTER_DELETED ? ' class="active"' : ''?>>
-            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::FILTER_DELETED)?>">Deleted</a>
+        <li<?php echo $filter == \Application\Comments\Content\Row::STATUS_DELETED ? ' class="active"' : ''?>>
+            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::STATUS_DELETED)?>">Deleted</a>
         </li>
     </ul>
 
@@ -53,9 +53,33 @@
 
                 <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
                 <div class="btn-group pull-left">
-                    <button class="btn btn-small" disabled="disabled"><i class="icon-ok-circle"></i> Approve</button>
-                    <button class="btn btn-small" disabled="disabled"><i class="icon-ban-circle"></i> Spam</button>
-                    <button class="btn btn-small" disabled="disabled"><i class="icon-remove-circle"></i> Delete</button>
+                    <button class="btn btn-small disabled"
+                        data-status="<?=\Application\Comments\Content\Row::STATUS_APPROVED?>"
+                        <?= ($filter == '' || $filter == \Application\Comments\Content\Row::STATUS_APPROVED) ? ' disabled="disabled"' : ''?>
+                        data-href="<?=$this->url(
+                            'comments',
+                            'change-status'
+                        );?>">
+                        <i class="icon-ok-circle"></i> Approve
+                    </button>
+                    <button class="btn btn-small disabled"
+                        data-status="<?=\Application\Comments\Content\Row::STATUS_SPAM?>"
+                        <?= $filter == \Application\Comments\Content\Row::STATUS_SPAM ? ' disabled="disabled"' : ''?>
+                        data-href="<?=$this->url(
+                            'comments',
+                            'change-status'
+                        );?>">
+                        <i class="icon-ban-circle"></i> Spam
+                    </button>
+                    <button class="btn btn-small disabled"
+                        data-status="<?=\Application\Comments\Content\Row::STATUS_DELETED?>"
+                        <?= $filter == \Application\Comments\Content\Row::STATUS_DELETED ? ' disabled="disabled"' : ''?>
+                        data-href="<?=$this->url(
+                            'comments',
+                            'change-status'
+                        );?>">
+                        <i class="icon-trash"></i> Delete
+                    </button>
                 </div>
 
                 <!-- Everything you want hidden at 940px or less, place within here -->
@@ -78,6 +102,9 @@
             <th class="author"><a href="<?=$grid->order('login')?:'#'?>">Author</a></th>
             <th><a href="<?=$grid->order('created')?:'#'?>">Created</a></th>
             <th><a href="<?=$grid->order('content')?:'#'?>">Content</a></th>
+            <? if($filter == \Application\Comments\Content\Row::FILTER_ALL) : ?>
+            <th width="80px"></th>
+            <? endif; ?>
             <th width="120px"></th>
         </tr>
         </thead>
@@ -85,7 +112,7 @@
         <?php foreach($grid->getData() as $row) : ?>
         <tr>
             <td class="select">
-                <input type="checkbox" name="select" value="<?=$row['id']?>" />
+                <input type="checkbox" name="select" value="<?=$row['id']?>" data-status="<?= $row['status'] ?>"/>
             </td>
             <td class="author">
                 <?=$this->widget('comments', 'gravatar', ['email' => $row['email']])?>
@@ -96,19 +123,45 @@
             </td>
             <td class="date"><?=$row['created']?></td>
             <td><?=$row['content']?></td>
+            <? if($filter == \Application\Comments\Content\Row::FILTER_ALL) : ?>
+            <td>
+                <?=$this->widget('comments', 'status', ['status' => $row['status']])?>
+            </td>
+            <? endif ?>
             <td class="controls">
                 <div class="btn-group">
 
-                    <a href="<?=$this->url('comments', 'approve', ['data' => ['id' => $row['id']]]);?>" class="btn btn-small dialog" data-ajax-method="get">
+                    <a href="<?=$this->url(
+                        'comments',
+                        'change-status',
+                        ['data' => [
+                            'id' => $row['id'],
+                            'status' => \Application\Comments\Content\Row::STATUS_APPROVED
+                        ]]
+                    );?>" data-ajax-method="get" class="btn btn-small ajax<?= $row['status'] == \Application\Comments\Content\Row::STATUS_APPROVED ? ' disabled' : ''?>">
                         <i class="icon-ok-circle"></i> Approve
                     </a>
 
-                    <a href="<?=$this->url('comments', 'spam', ['data' => ['id' => $row['id']]]);?>" class="btn btn-small dialog" data-ajax-method="get">
+                    <a href="<?=$this->url(
+                        'comments',
+                        'change-status',
+                        ['data' => [
+                            'id' => $row['id'],
+                            'status' => \Application\Comments\Content\Row::STATUS_SPAM
+                        ]]
+                    );?>" data-ajax-method="get" class="btn btn-small ajax<?= $row['status'] == \Application\Comments\Content\Row::STATUS_SPAM ? ' disabled' : ''?>">
                         <i class="icon-ban-circle"></i> Spam
                     </a>
 
-                    <a href="<?=$this->url('comments', 'delete', ['data' => ['id' => $row['id']]]);?>" class="btn btn-small dialog" data-ajax-method="get">
-                        <i class="icon-remove-circle"></i> Delete
+                    <a href="<?=$this->url(
+                        'comments',
+                        'change-status',
+                        ['data' => [
+                            'id' => $row['id'],
+                            'status' => \Application\Comments\Content\Row::STATUS_DELETED
+                        ]]
+                    );?>" data-ajax-method="get" class="btn btn-small ajax<?= $row['status'] == \Application\Comments\Content\Row::STATUS_DELETED ? ' disabled' : ''?>">
+                        <i class="icon-trash"></i> Delete
                     </a>
                 </div>
             </td>
@@ -118,7 +171,11 @@
             $emptyRows = $grid->getLimit() - sizeof($grid->getData()); ?>
             <?php for ($i = 0; $i < $emptyRows; $i++): ?>
         <tr>
+            <? if($filter == \Application\Comments\Content\Row::FILTER_ALL) : ?>
+            <td colspan="6">&nbsp;</td>
+            <? else : ?>
             <td colspan="5">&nbsp;</td>
+            <? endif; ?>
         </tr>
             <?php endfor; ?>
             <?php endif; ?>

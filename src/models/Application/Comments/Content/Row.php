@@ -29,6 +29,7 @@ namespace Application\Comments\Content;
 
 use Application\Roles;
 use Application\Privileges;
+use Application\Exception;
 
 /**
  * User
@@ -42,10 +43,11 @@ use Application\Privileges;
 class Row extends \Bluz\Db\Row
 {
     const FILTER_ALL = 'all';
-    const FILTER_APPROVED = 'approved';
-    const FILTER_PENDING = 'pending';
-    const FILTER_SPAM = 'spam';
-    const FILTER_DELETED = 'deleted';
+
+    const STATUS_APPROVED = 'approved';
+    const STATUS_PENDING = 'pending';
+    const STATUS_SPAM = 'spam';
+    const STATUS_DELETED = 'deleted';
 
     /**
      * @var integer
@@ -115,5 +117,27 @@ class Row extends \Bluz\Db\Row
     public function preUpdate()
     {
         $this->updated = gmdate('Y-m-d H:i:s');
+    }
+
+    /**
+     * Change comment status
+     *
+     * @param $status string
+     */
+    public function changeStatus($status)
+    {
+        switch ($status) {
+            case self::STATUS_APPROVED:
+            case self::STATUS_DELETED:
+            case self::STATUS_PENDING:
+            case self::STATUS_SPAM:
+                $this->status = $status;
+                $this->save();
+                break;
+            default:
+                throw new Exception('Invalid status param');
+                break;
+        }
+
     }
 }
