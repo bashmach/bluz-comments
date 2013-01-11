@@ -22,7 +22,7 @@ return
 function($filepath, $type) use ($view, $module, $controller) {
     $this->useLayout(false);
 
-    $src = PATH_LIBRARY . DIRECTORY_SEPARATOR
+    $src = PATH_VENDOR . DIRECTORY_SEPARATOR
         . 'bashmach' . DIRECTORY_SEPARATOR
         . 'bluz-comments' . DIRECTORY_SEPARATOR
         . 'assets' . DIRECTORY_SEPARATOR
