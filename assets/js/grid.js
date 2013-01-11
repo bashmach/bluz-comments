@@ -25,6 +25,12 @@ define(['jquery'], function($) {
     });
   }
 
+  var initTooltips = function() {
+    $grid.find('span[rel="tooltip"]').tooltip({
+      placement: 'bottom'
+    });
+  }
+
   /**
    * Refresh grid content
    *
@@ -53,6 +59,7 @@ define(['jquery'], function($) {
         $grid.html($(html).children().unwrap());
       }
     });
+
     return false;
   }
 
@@ -76,5 +83,67 @@ define(['jquery'], function($) {
     })
 
     changeStatus($(this).data('href'), ids, $(this).data('status'));
+  });
+
+  $grid.on('change', 'select[name="comments-filter-alias"]', function(e) {
+    $(this).parent('form').submit();
+  });
+
+  $grid.on('click', '.remove-setting', function(e) {
+    e.preventDefault();
+
+    var $this = $(this)
+      , alias = $this.parent('form').find('select').val();
+
+    if (typeof alias == 'undefined' || alias.length < 1) {
+      return false;
+    }
+
+    $.ajax({
+      url: $this.attr('href'),
+      type: 'get',
+      data: {
+        alias: alias
+      },
+      dataType: 'html',
+      beforeSend: function () {
+        $this.addClass('disabled');
+      },
+      success: function (data) {
+        if (data._reload !== undefined) {
+          window.location.reload();
+        }
+
+        var $div = $('<div>', {'class': 'modal hide fade'});
+        $div.html(data);
+        $div.modal({
+          keyboard: true,
+          backdrop: true
+        }).on('shown',function () {
+            var onShown = window[$this.attr('shown')];
+            if (typeof onShown === 'function') {
+              onShown.call($div);
+            }
+          }).on('hidden', function () {
+            var onHidden = window[$this.attr('hidden')];
+            if (typeof onHidden === 'function') {
+              onHidden.call($div);
+            }
+            $(this).remove();
+          });
+        $div.modal('show');
+      },
+      complete: function () {
+        $this.removeClass('disabled');
+      }
+    });
   })
+
+  $(document).ready(function() {
+    initTooltips();
+  })
+
+  $grid.ajaxComplete(function() {
+    initTooltips();
+  });
 })

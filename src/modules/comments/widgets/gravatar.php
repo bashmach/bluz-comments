@@ -13,7 +13,7 @@ return
          * @var \Bluz\Application $this
          */
         ?>
-        <img src="http://www.gravatar.com/avatar/<?= md5($hash) ?>?s=48" alt="" />
+        <img src="http://www.gravatar.com/avatar/<?= md5($hash) ?>?s=48" alt="" class="img-rounded" />
 
         <?php
     }

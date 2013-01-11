@@ -1,0 +1,53 @@
+<?php $uid = uniqid('form_'); ?>
+
+<script>
+    function validateForm (data) {
+        $('#<?=$uid?>').find('.control-group').removeClass('error');
+        $('#<?=$uid?>').find('.help-inline.error').remove();
+        if (data.errors) {
+            $.each(data.errors, function(field, messages) {
+                $('#<?=$uid?>').find('.control-group:has(#'+field+')').addClass('error');
+                $.each(messages, function(i, msg){
+                    $('#'+field).parent('.controls') // <div class="controls">..</div>
+                        .append('<span class="help-inline error">'+msg+'</span>');
+                });
+            });
+        }
+    }
+</script>
+
+<form id="<?=$uid?>" action="<?=$this->url('comments', 'settings-crud')?>" class="form-horizontal ajax" method="<?=$method?>">
+    <input type="hidden" name="data[id]" value="<?= $row->id ?>"/>
+
+    <div class="modal">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h3><?= !is_null($row->id) ? 'Edit' : 'New' ?> Setting</h3>
+        </div>
+        <div class="modal-body">
+            <div class="control-group">
+                <label class="control-label" for="alias"><?=$this->__('Alias')?></label>
+                <div class="controls">
+                    <input type="text" class="input-xlarge" id="alias" name="data[alias]" value="<?= $row->alias ?>" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="relatedTable"><?=$this->__('Related table')?></label>
+                <div class="controls">
+                    <input type="text" class="input-xlarge" id="relatedTable" name="data[relatedTable]"  value="<?= $row->relatedTable ?>"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="countPerPage"><?=$this->__('Count per page')?></label>
+                <div class="controls">
+                    <input type="text" class="input-small" id="countPerPage" name="data[countPerPage]"  value="<?= $row->countPerPage ?>" />
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary"><?=$this->__('Save')?></button>
+            <a href="#" class="btn" data-dismiss="modal"><?=$this->__('Close')?></a>
+        </div>
+    </div>
+
+</form>

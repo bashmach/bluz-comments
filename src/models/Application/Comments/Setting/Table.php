@@ -22,39 +22,48 @@
  */
 
 /**
- * @author   Pavel Machekhin
- * @created  21.11.12 16:51
+ * @namespace
  */
-namespace Application\Comments\Content;
+namespace Application\Comments\Setting;
 
 /**
- * @category Bluz
+ * Setting Table
+ *
+ * @category Application
  * @package  Comments
+ *
+ * @author   Pavel Machekhin
+ * @created  28.11.12 18:34
  */
-class Grid extends \Bluz\Grid\Grid
+class Table extends \Bluz\Db\Table
 {
-    protected $uid = 'comments';
+    /**
+     * Table
+     *
+     * @var string
+     */
+    protected $table = 'com_settings';
+
+    protected $rowClass = '\Application\Comments\Setting\Row';
 
     /**
-     * init
-     *
-     * @return self
+     * Primary key(s)
+     * @var array
      */
-    public function init()
+    protected $primary = array('id');
+
+    public function fetchAliases()
     {
-        // Array
-        $adapter = new \Bluz\Grid\Source\SqlSource();
-        $adapter->setSource('
-             SELECT *
-
-             FROM comments
-         ');
-
-        $this->setAdapter($adapter);
-        $this->setDefaultLimit(15);
-        $this->setAllowOrders(['created', 'login', 'content']);
-        $this->setAllowFilters(['status', 'alias']);
-        $this->setDefaultOrder('created', 'desc');
-        return $this;
+        return $this->fetch("
+            SELECT
+                s.id
+                , s.alias
+                , COUNT(c.id) AS total
+            FROM com_settings AS s
+            LEFT JOIN
+                com_content AS c
+                ON s.id = c.settingsId
+            GROUP BY s.id
+        ");
     }
 }

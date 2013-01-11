@@ -3,7 +3,7 @@
  * @var \Bluz\Grid\Grid $grid
  */
 ?>
-<link rel="stylesheet" href="<?=$this->baseUrl('/assets/comments/styles.css')?>" />
+<link rel="stylesheet" href="<?=$this->baseUrl('/assets/comments/styles.css')?>" xmlns="http://www.w3.org/1999/html"/>
 
 <script>
     require.config({
@@ -17,6 +17,37 @@
 </script>
 
 <div id="comments" data-spy="grid" data-grid="<?=$grid->getUid()?>">
+
+    <form class="form-search pull-left" action="<?=$this->url('comments', 'grid', ['comments-filter-status' => $statusFilter])?>" method="post">
+        <select class="input-medium" name="comments-filter-alias">
+            <option value="">All</option>
+            <? foreach ($settingList as $setting) : ?>
+                <option value="<?=$setting->alias?>"<?=((isset($settingFilterRow)) && $setting->alias == $settingFilterRow->alias) ? ' selected="selected"' : ''?>><?=$setting->alias?> (<?=$setting->total?>)</option>
+            <? endforeach; ?>
+        </select>
+        <? if (isset($settingFilterRow)) : ?>
+            <a href="<?=$this->url('comments', 'settings-crud', ['data' => ['id' => $settingFilterRow->id ]])?>" class="btn btn-small btn-success dialog" data-ajax-method="get">
+        <? else : ?>
+            <a href="#" class="btn btn-small btn-success disabled">
+        <? endif; ?>
+            <i class="icon-white icon-edit"></i>
+        </a>
+
+        <? if (isset($settingFilterRow)) : ?>
+            <a href="<?=$this->url('comments', 'settings-remove', ['data' => ['id' => $settingFilterRow->id ]])?>" data-ajax-method="delete" class="btn btn-small ajax btn-danger remove-setting">
+        <? else : ?>
+            <a href="#" class="btn btn-small btn-danger disabled">
+        <? endif; ?>
+            <i class="icon-white icon-remove"></i>
+        </a>
+    </form>
+
+    <div class="pull-left container-fluid">
+        <a href="<?=$this->url('comments', 'settings-crud')?>" class="btn btn-primary dialog" data-ajax-method="get">
+            <i class="icon-white icon-plus"></i> New Setting
+        </a>
+    </div>
+
     <div class="pagination pagination-right">
         <ul>
             <li><a href="#">Limit</a></li>
@@ -26,20 +57,20 @@
     </div>
 
     <ul class="nav nav-tabs">
-        <li<?php echo $filter == \Application\Comments\Content\Row::FILTER_ALL ? ' class="active"' : ''?>>
-            <a href="<?=$this->url('comments', 'grid')?>">All</a>
+        <li<?php echo $statusFilter == \Application\Comments\Content\Row::FILTER_ALL ? ' class="active"' : ''?>>
+            <a href="<?=$grid->filter('alias', \Bluz\Grid\Grid::FILTER_EQ, (isset($settingFilterRow)) ? $settingFilterRow->alias : '', true)?>">All</a>
         </li>
-        <li<?php echo $filter == '' || $filter == \Application\Comments\Content\Row::STATUS_APPROVED ? ' class="active"' : ''?>>
-            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::STATUS_APPROVED)?>">Approved</a>
+        <li<?php echo $statusFilter == '' || $statusFilter == \Application\Comments\Content\Row::STATUS_APPROVED ? ' class="active"' : ''?>>
+            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::STATUS_APPROVED, false)?>">Approved</a>
         </li>
-        <li<?php echo $filter == \Application\Comments\Content\Row::STATUS_PENDING ? ' class="active"' : ''?>>
-            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::STATUS_PENDING)?>">Pending</a>
+        <li<?php echo $statusFilter == \Application\Comments\Content\Row::STATUS_PENDING ? ' class="active"' : ''?>>
+            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::STATUS_PENDING, false)?>">Pending</a>
         </li>
-        <li<?php echo $filter == \Application\Comments\Content\Row::STATUS_SPAM ? ' class="active"' : ''?>>
-            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::STATUS_SPAM)?>">Spam</a>
+        <li<?php echo $statusFilter == \Application\Comments\Content\Row::STATUS_SPAM ? ' class="active"' : ''?>>
+            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::STATUS_SPAM, false)?>">Spam</a>
         </li>
-        <li<?php echo $filter == \Application\Comments\Content\Row::STATUS_DELETED ? ' class="active"' : ''?>>
-            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::STATUS_DELETED)?>">Deleted</a>
+        <li<?php echo $statusFilter == \Application\Comments\Content\Row::STATUS_DELETED ? ' class="active"' : ''?>>
+            <a href="<?=$grid->filter('status', \Bluz\Grid\Grid::FILTER_EQ, \Application\Comments\Content\Row::STATUS_DELETED, false)?>">Deleted</a>
         </li>
     </ul>
 
@@ -55,7 +86,7 @@
                 <div class="btn-group pull-left">
                     <button class="btn btn-small disabled"
                         data-status="<?=\Application\Comments\Content\Row::STATUS_APPROVED?>"
-                        <?= ($filter == '' || $filter == \Application\Comments\Content\Row::STATUS_APPROVED) ? ' disabled="disabled"' : ''?>
+                        <?= ($statusFilter == '' || $statusFilter == \Application\Comments\Content\Row::STATUS_APPROVED) ? ' disabled="disabled"' : ''?>
                         data-href="<?=$this->url(
                             'comments',
                             'change-status'
@@ -64,7 +95,7 @@
                     </button>
                     <button class="btn btn-small disabled"
                         data-status="<?=\Application\Comments\Content\Row::STATUS_SPAM?>"
-                        <?= $filter == \Application\Comments\Content\Row::STATUS_SPAM ? ' disabled="disabled"' : ''?>
+                        <?= $statusFilter == \Application\Comments\Content\Row::STATUS_SPAM ? ' disabled="disabled"' : ''?>
                         data-href="<?=$this->url(
                             'comments',
                             'change-status'
@@ -73,7 +104,7 @@
                     </button>
                     <button class="btn btn-small disabled"
                         data-status="<?=\Application\Comments\Content\Row::STATUS_DELETED?>"
-                        <?= $filter == \Application\Comments\Content\Row::STATUS_DELETED ? ' disabled="disabled"' : ''?>
+                        <?= $statusFilter == \Application\Comments\Content\Row::STATUS_DELETED ? ' disabled="disabled"' : ''?>
                         data-href="<?=$this->url(
                             'comments',
                             'change-status'
@@ -82,10 +113,8 @@
                     </button>
                 </div>
 
-                <!-- Everything you want hidden at 940px or less, place within here -->
+                <!-- Search place -->
                 <div class="nav-collapse collapse">
-                    <!-- .nav, .navbar-search, .navbar-form, etc -->
-
                     <form class="navbar-search pull-right">
                         <input type="text" class="search-query" placeholder="Search">
                     </form>
@@ -102,10 +131,10 @@
             <th class="author"><a href="<?=$grid->order('login')?:'#'?>">Author</a></th>
             <th><a href="<?=$grid->order('created')?:'#'?>">Created</a></th>
             <th><a href="<?=$grid->order('content')?:'#'?>">Content</a></th>
-            <? if($filter == \Application\Comments\Content\Row::FILTER_ALL) : ?>
-            <th width="80px"></th>
+            <? if($statusFilter == \Application\Comments\Content\Row::FILTER_ALL) : ?>
+            <th class="status">Status</th>
             <? endif; ?>
-            <th width="120px"></th>
+            <th class="actions"></th>
         </tr>
         </thead>
         <tbody>
@@ -119,11 +148,11 @@
                 <p>
                     <span><?=$row['login']?></span>
                 </p>
-                <span><?=$row['email']?></span>
+                <span class="truncate" rel="tooltip" title="<?=$row['email']?>"><?=$row['email']?></span>
             </td>
             <td class="date"><?=$row['created']?></td>
             <td><?=$row['content']?></td>
-            <? if($filter == \Application\Comments\Content\Row::FILTER_ALL) : ?>
+            <? if($statusFilter == \Application\Comments\Content\Row::FILTER_ALL) : ?>
             <td>
                 <?=$this->widget('comments', 'status', ['status' => $row['status']])?>
             </td>
@@ -171,7 +200,7 @@
             $emptyRows = $grid->getLimit() - sizeof($grid->getData()); ?>
             <?php for ($i = 0; $i < $emptyRows; $i++): ?>
         <tr>
-            <? if($filter == \Application\Comments\Content\Row::FILTER_ALL) : ?>
+            <? if($statusFilter == \Application\Comments\Content\Row::FILTER_ALL) : ?>
             <td colspan="6">&nbsp;</td>
             <? else : ?>
             <td colspan="5">&nbsp;</td>

@@ -1,0 +1,22 @@
+<?php $uid = uniqid('form_'); ?>
+
+<form id="<?=$uid?>" action="<?=$this->url('comments', 'settings-remove')?>" class="form-horizontal ajax" method="post">
+    <input type="hidden" name="data[id]" value="<?=$row->id?>" />
+
+    <div class="modal">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h3>Remove Setting</h3>
+        </div>
+        <div class="modal-body">
+            <p>
+                Are you sure you want remove this setting?
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary"><?=$this->__('Confirm')?></button>
+            <a href="#" class="btn" data-dismiss="modal"><?=$this->__('Close')?></a>
+        </div>
+    </div>
+
+</form>

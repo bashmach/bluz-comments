@@ -21,10 +21,20 @@
 
 #comments table .author span {
     font-size: 0.85em;
+    width: 160px;
+    display: block;
 }
 
 #comments table .date {
     width: 150px;
+}
+
+#comments table .status {
+    width: 80px;
+}
+
+#comments table .actions {
+    width: 120px;
 }
 
 #comments .controls .btn-group {
@@ -43,4 +53,10 @@
 
 #comments .navbar .btn-group {
     margin-top: 7px;
+}
+
+#comments .truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

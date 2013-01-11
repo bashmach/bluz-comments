@@ -23,10 +23,29 @@ return
             'Comments'
         ]);
 
+        $alias = $request->getParam('comments-filter-alias', '');
+
+        $view->settingFilterRow = Comments\Setting\Table::getInstance()->findRowWhere(['alias' => $alias]);
+        $view->statusFilter = $request->getParam('comments-filter-status', Comments\Content\Row::FILTER_ALL);
+
+        if ($request->isPost()) {
+            $params = [];
+
+            if (!empty($view->settingFilterRow)) {
+                $params['comments-filter-alias'] = $view->settingFilterRow->alias;
+            }
+
+            if ($view->statusFilter !== Comments\Content\Row::FILTER_ALL) {
+                $params['comments-filter-status'] = $view->statusFilter;
+            }
+
+            $this->redirectTo('comments', 'grid', $params);
+        }
+
         $grid = new Comments\Content\Grid();
         $grid->setModule($module);
         $grid->setController($controller);
 
-        $view->filter = $request->getParam('comments-filter-status', Comments\Content\Row::FILTER_ALL);
         $view->grid = $grid;
+        $view->settingList = Comments\Setting\Table::getInstance()->fetchAliases();
     };

@@ -22,39 +22,42 @@
  */
 
 /**
- * @author   Pavel Machekhin
- * @created  21.11.12 16:51
+ * @namespace
  */
-namespace Application\Comments\Content;
+namespace Application\Comments\Setting;
 
 /**
- * @category Bluz
+ * Crud
+ *
+ * @category Application
  * @package  Comments
+ *
+ * @author   Pavel Machekhin
+ * @created  08.01.13 17:08
  */
-class Grid extends \Bluz\Grid\Grid
+class Crud extends \Bluz\Crud\Crud
 {
-    protected $uid = 'comments';
-
     /**
-     * init
-     *
-     * @return self
+     * @throws \Bluz\Crud\ValidationException
      */
-    public function init()
+    public function validate()
     {
-        // Array
-        $adapter = new \Bluz\Grid\Source\SqlSource();
-        $adapter->setSource('
-             SELECT *
+        // name validator
+        $login = $this->getData('alias');
+        if (empty($login)) {
+            $this->addError('alias', 'Alias can\'t be empty');
+        }
 
-             FROM comments
-         ');
+        // email validator
+        $email = $this->getData('relatedTable');
+        if (empty($email)) {
+            $this->addError('relatedTable', 'Related table can\'t be empty');
+        }
 
-        $this->setAdapter($adapter);
-        $this->setDefaultLimit(15);
-        $this->setAllowOrders(['created', 'login', 'content']);
-        $this->setAllowFilters(['status', 'alias']);
-        $this->setDefaultOrder('created', 'desc');
-        return $this;
+        // validate entity
+        // ...
+        if (sizeof($this->errors)) {
+            throw new \Bluz\Crud\ValidationException('Validation error, please check errors stack');
+        }
     }
 }
